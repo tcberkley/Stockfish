@@ -58,8 +58,9 @@ void Tune::make_option(OptionsMap* opts, const string& n, int v, const SetRange&
     opts->add(n, Option(v, r(v).first, r(v).second, on_tune));
     LastOption = &((*opts)[n]);
 
-    // Print formatted parameters, ready to be copy-pasted in Fishtest
-    std::cout << n << ","                                  //
+    // Print formatted parameters to stderr (ready to be copy-pasted in Fishtest)
+    // Using stderr avoids corrupting the UCI stdout stream for clients like python-chess
+    std::cerr << n << ","                                  //
               << v << ","                                  //
               << r(v).first << ","                         //
               << r(v).second << ","                        //

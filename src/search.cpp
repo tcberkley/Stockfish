@@ -64,7 +64,7 @@ void syzygy_extend_pv(const OptionsMap&            options,
 using namespace Search;
 
 // Tunable parameters for eval-aware null move pruning
-int nmp_eval_divisor = 300;
+int nmp_eval_divisor = 250;
 int nmp_eval_max     = 2;
 TUNE(SetRange(100, 600), nmp_eval_divisor, SetDefaultRange);
 TUNE(SetRange(1, 4), nmp_eval_max, SetDefaultRange);

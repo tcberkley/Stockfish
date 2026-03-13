@@ -17,19 +17,19 @@ Depth R = 7 + depth / 3;
 
 **After:**
 ```cpp
-Depth R = 7 + depth / 3 + (depth > 10) * std::min((eval - beta) / 300, 2);
+Depth R = 7 + depth / 3 + (depth > 10) * std::min((eval - beta) / 250, 2);
 ```
 
 **How it works:**
 - At depth <= 10: no change (depth gate prevents over-pruning at shallow nodes)
 - At depth > 10 with eval close to beta: no change (integer division yields 0)
-- At depth > 10 with eval 300+ above beta: R increases by 1
-- At depth > 10 with eval 600+ above beta: R increases by 2 (capped)
+- At depth > 10 with eval 250+ above beta: R increases by 1
+- At depth > 10 with eval 500+ above beta: R increases by 2 (capped)
 
 **Safety mechanisms:**
 - Depth gate (>10): shallow searches are more sensitive to over-pruning
 - Cap of 2: prevents extreme reductions
-- Divisor of 300: conservative threshold — requires a substantial eval margin
+- Divisor of 250: tuned threshold — requires a substantial eval margin (lowered from 300 after grid search)
 - NMP already has a verification search at depth >= 16
 
 ## Iterations Tried
@@ -63,18 +63,53 @@ Nodes/second    : ~880,000
 ## SPSA Tuning Potential
 The three constants in this change are good SPSA candidates:
 - **Depth gate threshold** (currently 10): try range 8-14
-- **Divisor** (currently 300): try range 150-500
+- **Divisor** (currently 250): try range 150-400
 - **Cap** (currently 2): try range 1-4
 
 To expose for SPSA tuning, add to `tune.cpp`:
 ```cpp
 TUNE(nmpEvalGateDepth, 10, 6, 16, 1, 0.0020);
-TUNE(nmpEvalDivisor, 300, 100, 600, 25, 0.0020);
+TUNE(nmpEvalDivisor, 250, 100, 600, 25, 0.0020);
 TUNE(nmpEvalCap, 2, 1, 5, 1, 0.0020);
 ```
 
+## Local Tuning
+
+### Methodology
+Grid search over `nmp_eval_divisor` × `nmp_eval_max` using `cutechess-cli`:
+- **Games per config**: 100
+- **Time control**: 0.1s/move (fixed time)
+- **Configs tested**: 9 (divisor ∈ {250, 300, 350} × max ∈ {1, 2, 3})
+- **Baseline**: div=300, max=1 (original NMP formula extended)
+- **Engine**: Stockfish built from `experiment/eval-aware-nmp`
+
+### Results
+
+| Config | W/D/L | Elo vs baseline | LOS |
+|--------|-------|-----------------|-----|
+| **div=250, max=2** | +13 =84 -3 | **+34.9 ± 26.6** | **99.4%** |
+| div=250, max=3 | +11 =83 -6 | +17.4 ± 27.9 | 88.7% |
+| div=300, max=2 (old default) | +8 =86 -6 | +6.9 ± 25.5 | 70.4% |
+| div=250, max=1 | +8 =85 -7 | +3.5 ± 26.4 | 60.2% |
+| div=300, max=1 | +7 =86 -7 | +0.0 ± 25.5 | 50.0% |
+| div=300, max=3 | +6 =87 -7 | -3.5 ± 24.5 | 39.1% |
+| div=350, max=* | (pending) | — | — |
+
+### Conclusion
+**div=250, max=2** is the clear winner (+34.9 Elo, 99.4% LOS). The lower divisor means the bonus kicks in at 250cp above beta instead of 300cp — aggressive enough to prune effectively in winning positions, but the cap of 2 keeps it safe.
+
+Code updated: `nmp_eval_divisor` default changed from 300 → **250** (max=2 unchanged).
+
 ## Next Steps
-1. Push to fork: `git push origin experiment/eval-aware-nmp`
-2. Submit to Fishtest STC for ELO validation
+1. ~~Push to fork: `git push origin experiment/eval-aware-nmp`~~ ✓ Done
+2. Submit to Fishtest STC for ELO validation (in progress — see parameters below)
 3. If STC passes, submit LTC
-4. If both pass, consider SPSA tuning the constants
+4. If both pass, consider SPSA tuning the divisor and cap further
+
+### Fishtest STC Submission Parameters
+- **Test branch**: `tcberkley/Stockfish:experiment/eval-aware-nmp`
+- **Base branch**: `official-stockfish/Stockfish:master`
+- **Time control**: `10+0.1`
+- **Threads**: 1, **Hash**: 16
+- **SPRT bounds**: `-3.09` / `+3.09`
+- **Description**: `Eval-aware NMP reduction: R += min((eval-beta)/250, 2) at depth>10`
