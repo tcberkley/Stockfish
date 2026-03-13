@@ -46,6 +46,7 @@
 #include "thread.h"
 #include "timeman.h"
 #include "tt.h"
+#include "tune.h"
 #include "types.h"
 #include "uci.h"
 #include "ucioption.h"
@@ -61,6 +62,12 @@ void syzygy_extend_pv(const OptionsMap&            options,
                       Value&                       v);
 
 using namespace Search;
+
+// Tunable parameters for eval-aware null move pruning
+int nmp_eval_divisor = 300;
+int nmp_eval_max     = 2;
+TUNE(SetRange(100, 600), nmp_eval_divisor, SetDefaultRange);
+TUNE(SetRange(1, 4), nmp_eval_max, SetDefaultRange);
 
 namespace {
 
@@ -896,7 +903,7 @@ Value Search::Worker::search(
         assert((ss - 1)->currentMove != Move::null());
 
         // Null move dynamic reduction based on depth and eval margin above beta
-        Depth R = 7 + depth / 3 + (depth > 10) * std::min((eval - beta) / 300, 2);
+        Depth R = 7 + depth / 3 + (depth > 10) * std::min((eval - beta) / nmp_eval_divisor, nmp_eval_max);
         do_null_move(pos, st, ss);
 
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
