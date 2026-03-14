@@ -385,8 +385,8 @@ Thread* ThreadPool::get_best_thread() const {
 
         // We make sure not to pick a thread with truncated principal variation
         const bool betterVotingValue =
-          thread_voting_value(th.get()) * int(newThreadPV.size() > 2)
-          > thread_voting_value(bestThread) * int(bestThreadPV.size() > 2);
+          thread_voting_value(th.get()) * int(newThreadPV.size() + 1)
+          > thread_voting_value(bestThread) * int(bestThreadPV.size() + 1);
 
         if (bestThreadInProvenWin)
         {
