@@ -1160,7 +1160,7 @@ moves_loop:  // When in check, search starts here
             else if (value >= beta && !is_decisive(value))
             {
                 ttMoveHistory << std::max(-394 - 105 * depth, -3692);
-                return value;
+                return (value + beta) / 2;
             }
 
             // Negative extensions
