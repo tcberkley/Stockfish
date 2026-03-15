@@ -1689,7 +1689,13 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 if (value < beta)  // Update alpha here!
                     alpha = value;
                 else
+                {
+                    if (capture && moveCount == 1)
+                        captureHistory[pos.moved_piece(bestMove)][bestMove.to_sq()]
+                                      [type_of(pos.piece_on(bestMove.to_sq()))]
+                          << 200;
                     break;  // Fail high
+                }
             }
         }
     }
