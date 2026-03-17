@@ -1405,7 +1405,8 @@ moves_loop:  // When in check, search starts here
 
     // Adjust best value for fail high cases
     if (bestValue >= beta && !is_decisive(bestValue) && !is_decisive(alpha))
-        bestValue = (bestValue * depth + beta) / (depth + 1);
+        bestValue = (bestValue * std::max(1, depth - (bestValue - beta > 100 ? 0 : 1)) + beta)
+                  / (std::max(1, depth - (bestValue - beta > 100 ? 0 : 1)) + 1);
 
     if (!moveCount)
         bestValue = excludedMove ? alpha : ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
