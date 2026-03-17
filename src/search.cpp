@@ -1256,7 +1256,8 @@ moves_loop:  // When in check, search starts here
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
                 // Post LMR continuation history updates
-                update_continuation_histories(ss, movedPiece, move.to_sq(), 1342);
+                int postLMRBonus = std::min(124 * newDepth - 84, 1376);
+                update_continuation_histories(ss, movedPiece, move.to_sq(), postLMRBonus);
             }
         }
 
