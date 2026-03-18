@@ -102,7 +102,7 @@ Analyze a branch that had a partial result (e.g., passed STC but failed LTC) and
 6. **Present results** — Show ranked table with an additional column: **Coherence** (does it make sense paired with the branch?).
 
 7. **Get user approval** — For approved variants, ask whether to:
-   - Package with the original branch change (two changes in one commit)
+   - Package with the original branch change on a fresh branch that re-implements both changes together
    - Submit as a separate experiment that assumes the first patch merged
 
 ---
@@ -241,6 +241,7 @@ blended = 0.4 * advocate_confidence + 0.6 * (10 - skeptic_failure_confidence)
 
 - ALWAYS ask user before adding items to TODO.md
 - ALWAYS ask user before running `/experiment`
+- ALWAYS use a fresh branch from `master`/`origin/master` for each new change/test; never reuse an existing experiment branch
 - In `status` mode, never modify any files
 - Pass kill patterns inline to sub-agents — do not tell them to read TODO.md themselves
 - When advocate and skeptic can run in parallel (same round), DO run them in parallel

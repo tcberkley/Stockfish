@@ -1,6 +1,6 @@
 ---
 name: experiment
-description: Pick the most promising untested idea from TODO.md, implement it, bench-test it, create a clean branch from master, and prepare Fishtest submission details.
+description: Pick the most promising untested idea from TODO.md, implement it, bench-test it on a fresh branch from master, and prepare Fishtest submission details.
 disable-model-invocation: true
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
@@ -30,7 +30,8 @@ Run a complete experiment cycle: select idea, implement, test, branch, and prepa
 ## Step 3: Implement the change
 
 - Stash any uncommitted work on the current branch: `git stash`
-- Create a clean branch from master: `git checkout master && git checkout -b experiment/<descriptive-name>`
+- Create a fresh clean branch from master: `git checkout master && git checkout -b experiment/<descriptive-name>`
+- NEVER reuse an existing experiment branch or stack a new test on top of an older experiment commit
 - Make the minimal code change described in the TODO item
 - Only modify source files (no markdown, no docs)
 
@@ -98,6 +99,7 @@ TC: 10+0.1, Hash=16, Auto-purge checked).
 
 - NEVER include markdown files in the experiment branch commit
 - NEVER modify more than one formula per experiment (clean attribution)
+- ALWAYS use a fresh branch for each new change/test
 - ALWAYS verify bench differs from master before committing
 - If the bench takes longer than 15 seconds, something is wrong (competing processes or too-aggressive change)
 - The experiment branch must be a single commit on top of master

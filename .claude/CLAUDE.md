@@ -10,7 +10,7 @@ This is a fork of [Stockfish](https://github.com/official-stockfish/Stockfish) u
 
 1. **Discover** ideas using `meta-prompt.md` thinking frameworks
 2. **Queue** them in `TODO.md` (structured, machine-parseable format)
-3. **Implement** via `/experiment [item-number]` skill — this builds, benches, commits, pushes the branch, and outputs Fishtest submission details. It marks the item `[SUBMITTED]` in TODO.md.
+3. **Implement** via `/experiment [item-number]` skill — this builds, benches, commits, pushes the branch, and outputs Fishtest submission details. Every new test starts from a fresh branch off `master`/`origin/master`; never reuse an old experiment branch. It marks the item `[SUBMITTED]` in TODO.md.
 4. **Submit** — the user must manually submit the branch on https://tests.stockfishchess.org/tests/run using the details from step 3. Claude cannot do this.
 5. **Analyze** results and update kill patterns
 
@@ -37,6 +37,7 @@ This is a fork of [Stockfish](https://github.com/official-stockfish/Stockfish) u
 ## Conventions
 
 - Experiment branches: `experiment/<descriptive-slug>`, single commit on top of `master`
+- Every new change/test gets a fresh branch from `master`/`origin/master`; never stack multiple independent tests on one branch
 - Commit format: subject line, 1-2 sentence rationale, `Bench: <number>` as last line
 - Master bench: 2,288,704 (bench MUST differ for functional changes)
 - Remote: `origin` = `tcberkley/Stockfish`, `upstream` = `official-stockfish/Stockfish`
@@ -66,5 +67,6 @@ Based on analysis of recent upstream commits:
 - Never duplicate a killed pattern without explaining why the prior failure doesn't apply
 - Never include markdown files in experiment branch commits
 - Never modify more than one formula per experiment (clean attribution)
+- Never reuse an old experiment branch for a new test
 - Never skip studying recent upstream patches before a discovery cycle
 - Never propose more than 60% additions and fewer than 30% simplifications in a discovery batch
