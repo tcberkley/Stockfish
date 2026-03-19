@@ -790,9 +790,6 @@ Value Search::Worker::search(
                 update_quiet_histories(pos, ss, *this, ttData.move,
                                        std::min(119 * depth - 74, 855));
 
-            // Extra penalty for early quiet moves of the previous ply
-            if (prevSq != SQ_NONE && (ss - 1)->moveCount < 4 && !priorCapture)
-                update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -2014);
         }
 
         // Partial workaround for the graph history interaction problem
@@ -1872,11 +1869,6 @@ void update_all_stats(const Position& pos,
         capturedPiece = type_of(pos.piece_on(bestMove.to_sq()));
         captureHistory[movedPiece][bestMove.to_sq()][capturedPiece] << bonus * 1286 / 1024;
     }
-
-    // Extra penalty for a quiet early move that was not a TT move in
-    // previous ply when it gets refuted.
-    if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 616 / 1024);
 
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
