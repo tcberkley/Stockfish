@@ -900,7 +900,7 @@ Value Search::Worker::search(
             Value futilityMult = 76 - 21 * !ss->ttHit;
 
             return futilityMult * d
-                 - (2686 * improving + 362 * opponentWorsening) * futilityMult / 1024  //
+                 - 2686 * improving * futilityMult / 1024  //
                  + std::abs(correctionValue) / 180600;
         };
 
